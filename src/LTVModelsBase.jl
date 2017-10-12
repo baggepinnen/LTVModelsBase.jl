@@ -89,6 +89,10 @@ function df(model::AbstractModel, x, u)
     error("This function is not implemented for your type")
     return fx,fu,fxx,fxu,fuu
 end
+
+function covariance(model::AbstractModel, x, u)
+    cov(x[:,2:end]-predict(model, x, u)[:,1:end-1], 2)
+end
 # Model interface ====================================
 
 
@@ -169,13 +173,5 @@ end
 
 
 
-function covariance(model::AbstractModel, x, u)
-    xhat = similar(x)
-    xhat[:,1] = x[:,1]
-    for i = 1:size(x,2)-1
-        xhat[:,i+1] = model.At[:,:,i]*x[:,i] + model.Bt[:,:,i]*u[:,i]
-    end
-    return cov(x-xhat, 2)
-end
 
 end # module
