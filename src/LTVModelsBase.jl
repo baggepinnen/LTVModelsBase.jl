@@ -37,13 +37,13 @@ mutable struct SimpleLTVModel{T} <: LTVStateSpaceModel
     At::Array{T,3}
     Bt::Array{T,3}
     extended::Bool
-    function SimpleLTVModel{T}(At::Array{T,3},Bt::Array{T,3},extend::Bool)
-        if extend
-            At = cat(3,At,At[:,:,end])
-            Bt = cat(3,Bt,Bt[:,:,end])
-        end
-        return new(At,Bt,extend)
+end
+function SimpleLTVModel{T}(At::Array{T,3},Bt::Array{T,3},extend::Bool)
+    if extend
+        At = cat(3,At,At[:,:,end])
+        Bt = cat(3,Bt,Bt[:,:,end])
     end
+    return SimpleLTVModel{T}(At,Bt,extend)
 end
 
 SimpleLTVModel(At,Bt,extend::Bool) = SimpleLTVModel{eltype(At)}(At,Bt,extend)
