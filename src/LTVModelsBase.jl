@@ -38,7 +38,7 @@ mutable struct SimpleLTVModel{T} <: LTVStateSpaceModel
     Bt::Array{T,3}
     extended::Bool
 end
-function SimpleLTVModel{T}(At::Array{T,3},Bt::Array{T,3},extend::Bool)
+function SimpleLTVModel(At::Array{T,3},Bt::Array{T,3},extend::Bool) where T
     if extend
         At = cat(3,At,At[:,:,end])
         Bt = cat(3,Bt,Bt[:,:,end])
@@ -46,7 +46,7 @@ function SimpleLTVModel{T}(At::Array{T,3},Bt::Array{T,3},extend::Bool)
     return SimpleLTVModel{T}(At,Bt,extend)
 end
 
-SimpleLTVModel(At,Bt,extend::Bool) = SimpleLTVModel{eltype(At)}(At,Bt,extend)
+# SimpleLTVModel(At,Bt,extend::Bool) = SimpleLTVModel{eltype(At)}(At,Bt,extend)
 
 
 """
