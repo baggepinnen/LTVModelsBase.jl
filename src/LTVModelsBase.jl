@@ -23,8 +23,9 @@ nrmse(y,yh) = 100 * (1-rms(y-yh)./rms(y-mean(y)))
     nx::Int
     nu::Int
     function Trajectory(x,u)
-        @assert size(x,2) == size(u,2) "The second dimension of x and u (time) must be the same"
-        x,u,y = x[:,1:end-1],u[:,1:end-1],y[:,2:end]
+        T = size(x,2)
+        @assert T ∈ [size(u,2),size(u,2)+1] ||  "The second dimension (time) of x must be equal to or one greater than the second dimension of u "
+        x,u,y = x[:,1:T-1],u[:,1:T-1],x[:,2:T]
         new(x,u,y,[x;u],size(x,1), size(u,1))
     end
     function Trajectory(x,u,y)
