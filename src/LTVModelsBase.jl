@@ -1,9 +1,9 @@
 module LTVModelsBase
 
+using Parameters
 # Interface exports
-export AbstractModel, AbstractCost, ModelAndCost,f,
-dc,calculate_cost,calculate_final_cost,
-fit_model, predict, df,costfun, LTVStateSpaceModel,
+export Trajectory, AbstractModel, AbstractCost, ModelAndCost,f,
+dc,calculate_cost,calculate_final_cost, predict, simulate, df,costfun, LTVStateSpaceModel,
 SimpleLTVModel, covariance
 
 export rms, sse, nrmse
@@ -12,6 +12,32 @@ export rms, sse, nrmse
 rms(x)      = sqrt(mean(x.^2))
 sse(x)      = x⋅x
 nrmse(y,yh) = 100 * (1-rms(y-yh)./rms(y-mean(y)))
+
+
+# Trajectory =========================================
+@with_kw mutable struct Trajectory
+    x::Matrix{Float64}
+    u::Matrix{Float64}
+    y::Matrix{Float64}
+    xu::Matrix{Float64}
+    nx::Int
+    nu::Int
+    function Trajectory(x,u)
+        @assert size(x,2) == size(u,2) "The second dimension of x and u (time) must be the same"
+        x,u,y = x[:,1:end-1],u[:,1:end-1],y[:,2:end]
+        new(x,u,y,[x;u],size(x,1), size(u,1))
+    end
+    function Trajectory(x,u,y)
+        @assert size(x,2) == size(u,2) == size(y,2) "The second dimension of x,u and y (time) must be the same"
+        new(x,u,y,[x;u],size(x,1), size(u,1))
+    end
+end
+Base.length(t::Trajectory) = size(t.x,2)
+
+Base.start(t::Trajectory) = 1
+Base.next(t::Trajectory, state) = ((t.x[:,state], t.u[:,state]), state+1)
+Base.done(t::Trajectory, state) = state == length(t)
+
 
 # Model interface ====================================
 """
@@ -70,7 +96,8 @@ function fit_model!(model::AbstractModel, x,u)::AbstractModel
 end
 
 """
-    xnew = predict(model::AbstractModel, x, u, i)
+    xnew = predict(model::AbstractModel, t::Trajectory [, i])
+    xnew = predict(model::AbstractModel, x, u [, i])
 
 Predict the next state given the current state and action
 """
@@ -78,6 +105,21 @@ function predict(model::AbstractModel, x, u, i)
     error("This function is not implemented for your type")
     return xnew
 end
+
+predict(model::AbstractModel, t::Trajectory, args...) = predict(model, t.x, t.u, args...)
+
+"""
+    xnew = simulate(model::AbstractModel, t::Trajectory)
+    xnew = simulate(model::AbstractModel, x0, u)
+
+Simulate system forward in time given the initial state and actions
+"""
+function simulate(model::AbstractModel, x0, u)
+    error("This function is not implemented for your type")
+    return xnew
+end
+
+simulate(model::AbstractModel, t::Trajectory) = simulate(model, t.x[:,1], t.u)
 
 
 """
