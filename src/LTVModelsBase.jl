@@ -4,7 +4,7 @@ using Parameters
 # Interface exports
 export Trajectory, AbstractModel, AbstractCost, ModelAndCost,f,
 dc,calculate_cost,calculate_final_cost, predict, simulate, df,costfun, LTVStateSpaceModel,
-SimpleLTVModel, covariance
+SimpleLTVModel, covariance, whiten!
 
 export rms, sse, nrmse
 
@@ -38,6 +38,16 @@ Base.length(t::Trajectory) = size(t.x,2)
 Base.start(t::Trajectory) = 1
 Base.next(t::Trajectory, state) = ((t.x[:,state], t.u[:,state]), state+1)
 Base.done(t::Trajectory, state) = state == length(t)
+function whiten!(t::Trajectory)
+    whiten!(t.x, 2)
+    whiten!(t.u, 2)
+    whiten!(t.y, 2)
+end
+
+function whiten!(m::Matrix, d=2)
+    m .-= mean(m,d)
+    m ./= std(m,d)
+end
 
 
 # Model interface ====================================
