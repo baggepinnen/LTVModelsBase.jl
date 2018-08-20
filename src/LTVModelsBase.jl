@@ -35,9 +35,12 @@ nrmse(y,yh) = 100 * (1-rms(y-yh)./rms(y-mean(y)))
 end
 Base.length(t::Trajectory) = size(t.x,2)
 
-Base.start(t::Trajectory) = 1
-Base.next(t::Trajectory, state) = ((t.x[:,state], t.u[:,state]), state+1)
-Base.done(t::Trajectory, state) = state == length(t)
+
+function Base.iterate(t::Trajectory, state)
+    state == length(t) && return nothing
+    (t.x[:,state], t.u[:,state]), state+1
+end
+
 function whiten!(t::Trajectory)
     whiten!(t.x, 2)
     whiten!(t.u, 2)
