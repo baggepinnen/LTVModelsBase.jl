@@ -200,7 +200,7 @@ df(x, u, I) = df(modelcost, x, u, I)
 ```
 see also `AbstractModel`, `AbstractCost`
 """
-type ModelAndCost
+struct ModelAndCost
     model::AbstractModel
     cost::AbstractCost
 end
