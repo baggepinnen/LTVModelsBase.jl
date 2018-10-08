@@ -1,6 +1,6 @@
 module LTVModelsBase
 
-using Parameters
+using Parameters, Statistics, LinearAlgebra
 # Interface exports
 export Trajectory, AbstractModel, AbstractCost, ModelAndCost,f,
 dc,calculate_cost,calculate_final_cost, predict, simulate, df,costfun, LTVStateSpaceModel,
@@ -36,7 +36,7 @@ end
 Base.length(t::Trajectory) = size(t.x,2)
 
 
-function Base.iterate(t::Trajectory, state)
+function Base.iterate(t::Trajectory, state=1)
     state == length(t) && return nothing
     (t.x[:,state], t.u[:,state]), state+1
 end
