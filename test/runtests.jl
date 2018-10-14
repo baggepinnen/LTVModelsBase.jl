@@ -1,5 +1,11 @@
 using LTVModelsBase
-using Base.Test
+using Test
 
 # write your own tests here
-@test 1 == 2
+t = Trajectory(randn(2,4), randn(2,4))
+@test length(t) == 4
+@test t.nx == t.nu == 2
+
+for (x,u) in t
+    println(x,u)
+end
