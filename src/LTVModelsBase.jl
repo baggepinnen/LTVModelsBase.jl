@@ -95,7 +95,7 @@ end
 Fits a model to data
 """
 function fit_model(::Type{AbstractModel}, x,u)::AbstractModel
-    error("This function is not implemented for your type")
+    error("This function is not implemented for $(typeof(model))")
     return model
 end
 
@@ -105,7 +105,7 @@ end
 Refits a model to new data
 """
 function fit_model!(model::AbstractModel, x,u)::AbstractModel
-    error("This function is not implemented for your type")
+    error("This function is not implemented for $(typeof(model))")
     return model
 end
 
@@ -116,7 +116,7 @@ end
 Predict the next state given the current state and action
 """
 function predict(model::AbstractModel, x, u, i)
-    error("This function is not implemented for your type")
+    error("This function is not implemented for $(typeof(model))")
     return xnew
 end
 
@@ -129,7 +129,7 @@ predict(model::AbstractModel, t::Trajectory, args...) = predict(model, t.x, t.u,
 Simulate system forward in time given the initial state and actions
 """
 function simulate(model::AbstractModel, x0, u)
-    error("This function is not implemented for your type")
+    error("This function is not implemented for $(typeof(model))")
     return xnew
 end
 
@@ -142,7 +142,7 @@ simulate(model::AbstractModel, t::Trajectory) = simulate(model, t.x[:,1], t.u)
 Get the linearized dynamics at `x`,`u`
 """
 function df(model::AbstractModel, x, u)
-    error("This function is not implemented for your type")
+    error("This function is not implemented for $(typeof(model))")
     return fx,fu,fxx,fxu,fuu
 end
 
@@ -171,22 +171,22 @@ end
 abstract type AbstractCost end
 
 function calculate_cost(c::AbstractCost, x::AbstractVector, u)::Number
-    error("This function is not implemented for your type")
+    error("This function is not implemented for $(typeof(c))")
     return c
 end
 
 function calculate_cost(c::AbstractCost, x::AbstractMatrix, u)::AbstractVector
-    error("This function is not implemented for your type")
+    error("This function is not implemented for $(typeof(c))")
     return c
 end
 
 function calculate_final_cost(c::AbstractCost, x::AbstractVector)::Number
-    error("This function is not implemented for your type")
+    error("This function is not implemented for $(typeof(c))")
     return c
 end
 
 function dc(c::AbstractCost, x, u)
-    error("This function is not implemented for your type")
+    error("This function is not implemented for $(typeof(c))")
     return cx,cu,cxx,cuu,cxu
 end
 # Cost interface ====================================
