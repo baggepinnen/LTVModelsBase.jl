@@ -1,6 +1,6 @@
 module LTVModelsBase
 
-using Parameters
+using Parameters, Statistics, LinearAlgebra
 # Interface exports
 export Trajectory, AbstractModel, AbstractCost, ModelAndCost,f,
 dc,calculate_cost,calculate_final_cost, predict, simulate, df,costfun, LTVStateSpaceModel,
@@ -11,7 +11,7 @@ export rms, sse, nrmse
 
 rms(x)      = sqrt(mean(x.^2))
 sse(x)      = x⋅x
-nrmse(y,yh) = 100 * (1-rms(y-yh)./rms(y-mean(y)))
+nrmse(y,yh) = 100 .* (1 .-rms(y .- yh)./rms(y .- mean(y)))
 
 
 # Trajectory =========================================
@@ -20,25 +20,27 @@ nrmse(y,yh) = 100 * (1-rms(y-yh)./rms(y-mean(y)))
     u::Matrix{Float64}
     y::Matrix{Float64}
     xu::Matrix{Float64}
+    yu::Matrix{Float64}
     nx::Int
     nu::Int
-    function Trajectory(x,u)
-        T = size(x,2)
-        @assert T ∈ [size(u,2),size(u,2)+1] ||  "The second dimension (time) of x must be equal to or one greater than the second dimension of u "
-        x,u,y = x[:,1:T-1],u[:,1:T-1],x[:,2:T]
-        new(x,u,y,[x;u],size(x,1), size(u,1))
-    end
-    function Trajectory(x,u,y)
-        @assert size(x,2) == size(u,2) == size(y,2) "The second dimension of x,u and y (time) must be the same"
-        new(x,u,y,[x;u],size(x,1), size(u,1))
-    end
+    ny::Int
 end
-Base.length(t::Trajectory) = size(t.x,2)
+function Trajectory(x,u)
+    T = size(x,2)
+    @assert T ∈ [size(u,2),size(u,2)+1] ||  "The second dimension (time) of x must be equal to or one greater than the second dimension of u "
+    x,u,y = x[:,1:T-1],u[:,1:T-1],x[:,2:T]
+    Trajectory(x,u,y,[x;u],[y;u],size(x,1), size(u,1), size(y,1))
+end
+function Trajectory(x,u,y)
+    @assert size(x,2) == size(u,2) == size(y,2) "The second dimension of x,u and y (time) must be the same"
+    Trajectory(x,u,y,[x;u],[y;u],size(x,1), size(u,1), size(y,1))
+end
+Base.length(t::Trajectory) = size(t.u,2)
 
 
 function Base.iterate(t::Trajectory, state=1)
     state == length(t) && return nothing
-    (t.x[:,state], t.u[:,state]), state+1
+    (t.x[:,state], t.u[:,state], t.y[:,state]), state+1
 end
 
 function whiten!(t::Trajectory)
@@ -147,7 +149,7 @@ function df(model::AbstractModel, x, u)
 end
 
 function covariance(model::AbstractModel, x, u)
-    cov(x[:,2:end]-predict(model, x, u)[:,1:end-1], 2)
+    cov(x[:,2:end]-predict(model, x, u)[:,1:end-1], dims=2)
 end
 # Model interface ====================================
 
@@ -203,7 +205,7 @@ df(x, u, I) = df(modelcost, x, u, I)
 ```
 see also `AbstractModel`, `AbstractCost`
 """
-struct ModelAndCost
+mutable struct ModelAndCost
     model::AbstractModel
     cost::AbstractCost
 end
