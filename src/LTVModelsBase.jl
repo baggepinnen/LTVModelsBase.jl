@@ -6,12 +6,16 @@ export Trajectory, AbstractModel, AbstractCost, ModelAndCost,f,
 dc,calculate_cost,calculate_final_cost, predict, simulate, df,costfun, LTVStateSpaceModel,
 SimpleLTVModel, covariance, whiten!
 
-export rms, sse, nrmse
+export rms, sse, nrmse, modelfit, aic
 
 
-rms(x)      = sqrt(mean(x.^2))
-sse(x)      = x⋅x
-nrmse(y,yh) = 100 * (1-rms(y-yh)./rms(y-mean(y)))
+rms(x::AbstractVector) = sqrt(mean(abs2,x))
+sse(x::AbstractVector) = x⋅x
+
+rms(x::AbstractMatrix) = sqrt.(mean(abs2.(x),dims=2))[:]
+sse(x::AbstractMatrix) = sum(abs2,x,dims=2)[:]
+modelfit(y,yh) = 100 * (1 .-rms(y.-yh)./rms(y.-mean(y)))
+aic(x::AbstractVector,d) = log(sse(x)) .+ 2d/size(x,2)
 
 
 # Trajectory =========================================
@@ -79,8 +83,8 @@ mutable struct SimpleLTVModel{T} <: LTVStateSpaceModel
     extended::Bool
     function SimpleLTVModel(At::Array{T,3},Bt::Array{T,3},extend::Bool) where T
         if extend
-            At = cat(3,At,At[:,:,end])
-            Bt = cat(3,Bt,Bt[:,:,end])
+            At = cat(At,At[:,:,end], dims=3)
+            Bt = cat(Bt,Bt[:,:,end], dims=3)
         end
         return new{T}(At,Bt,extend)
     end
@@ -147,7 +151,7 @@ function df(model::AbstractModel, x, u)
 end
 
 function covariance(model::AbstractModel, x, u)
-    cov(x[:,2:end]-predict(model, x, u)[:,1:end-1], 2)
+    cov(x[:,2:end]-predict(model, x, u)[:,1:end-1], dims=2)
 end
 # Model interface ====================================
 
@@ -203,7 +207,7 @@ df(x, u, I) = df(modelcost, x, u, I)
 ```
 see also `AbstractModel`, `AbstractCost`
 """
-struct ModelAndCost
+mutable struct ModelAndCost
     model::AbstractModel
     cost::AbstractCost
 end
