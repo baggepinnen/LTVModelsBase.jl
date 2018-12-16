@@ -1,4 +1,4 @@
-The LTVModelsBase.jl package is licensed under the MIT "Expat" License:
+The LinearTimeVaryingModelsBase.jl package is licensed under the MIT "Expat" License:
 
 > Copyright (c) 2017: baggepinnen.
 >

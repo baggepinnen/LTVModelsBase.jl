@@ -1,4 +1,4 @@
-module LTVModelsBase
+module LinearTimeVaryingModelsBase
 
 using Parameters, Statistics, LinearAlgebra
 # Interface exports
