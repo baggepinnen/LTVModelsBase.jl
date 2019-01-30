@@ -93,6 +93,15 @@ mutable struct SimpleLTVModel{T} <: LTVStateSpaceModel
     end
 end
 
+function df(model::SimpleLTVModel, x, u)
+    return model.At,model.Bt,[],[],[]
+end
+
+function covariance(model::SimpleLTVModel, x, u)
+    n = size(model.At,1)
+    zeros(n,n)
+end
+
 # SimpleLTVModel(At,Bt,extend::Bool) = SimpleLTVModel{eltype(At)}(At,Bt,extend)
 
 
