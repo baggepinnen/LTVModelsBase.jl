@@ -32,7 +32,7 @@ const nrmse = modelfit
 end
 function Trajectory(x,u)
     T = size(x,2)
-    @assert T ∈ [size(u,2),size(u,2)+1] ||  "The second dimension (time) of x must be equal to or one greater than the second dimension of u "
+    @assert T ∈ (size(u,2),size(u,2)+1) ||  "The second dimension (time) of x must be equal to or one greater than the second dimension of u "
     x,u,y = x[:,1:T-1],u[:,1:T-1],x[:,2:T]
     Trajectory(x,u,y,[x;u],[y;u],size(x,1), size(u,1), size(y,1))
 end
